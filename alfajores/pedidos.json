@@ -22,7 +22,7 @@
     "totalUnits": 24,
     "price": 0,
     "isBulkPrice": false,
-    "pendingDelivery": true,
+    "pendingDelivery": false,
     "pendingPayment": false,
     "createdAt": "2025-10-26T20:08:01.728Z",
     "date": "26/10/2025"
