@@ -40,5 +40,19 @@
     "pendingPayment": false,
     "createdAt": "2025-10-26T23:54:06.539Z",
     "date": "26/10/2025"
+  },
+  {
+    "id": 1766793274804,
+    "kioskId": 1761522330301,
+    "kioskName": "Aad",
+    "fullBox": 2,
+    "halfBox": 0,
+    "totalUnits": 24,
+    "price": 36000,
+    "isBulkPrice": false,
+    "pendingDelivery": false,
+    "pendingPayment": false,
+    "createdAt": "2025-12-26T23:54:34.804Z",
+    "date": "26/12/2025"
   }
 ]
