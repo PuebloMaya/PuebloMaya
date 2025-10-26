@@ -34,7 +34,7 @@
     "totalUnits": 24,
     "price": 36000,
     "isBulkPrice": false,
-    "pendingPayment": true,
+    "pendingPayment": false,
     "createdAt": "2025-10-26T19:33:53.154Z",
     "date": "26/10/2025"
   }
