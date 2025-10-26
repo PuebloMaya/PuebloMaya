@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "id": 1761509275003,
+    "kioskId": 1761509260034,
+    "kioskName": "asda",
+    "fullBox": 2,
+    "halfBox": 0,
+    "totalUnits": 24,
+    "price": 0,
+    "isBulkPrice": false,
+    "pendingDelivery": false,
+    "pendingPayment": false,
+    "createdAt": "2025-10-26T20:07:55.003Z",
+    "date": "26/10/2025"
+  }
+]
