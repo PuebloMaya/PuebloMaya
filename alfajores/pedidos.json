@@ -37,7 +37,7 @@
     "price": 0,
     "isBulkPrice": false,
     "pendingDelivery": false,
-    "pendingPayment": true,
+    "pendingPayment": false,
     "createdAt": "2025-10-26T20:08:08.045Z",
     "date": "26/10/2025"
   }
