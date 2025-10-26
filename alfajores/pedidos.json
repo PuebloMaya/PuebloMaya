@@ -23,7 +23,7 @@
     "price": 85000,
     "isBulkPrice": true,
     "pendingDelivery": false,
-    "pendingPayment": true,
+    "pendingPayment": false,
     "createdAt": "2025-10-26T23:36:41.895Z",
     "date": "26/10/2025"
   }
