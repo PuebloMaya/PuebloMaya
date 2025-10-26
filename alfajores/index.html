@@ -754,7 +754,7 @@
         // ============================================
 
         async function leerArchivoGitHub(archivo) {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${archivo}`;
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/alfajores/${archivo}`;
             
             try {
                 const response = await fetch(url, {
@@ -783,7 +783,7 @@
         }
 
         async function escribirArchivoGitHub(archivo, datos, sha = null) {
-            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${archivo}`;
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/alfajores/${archivo}`;
             
             const contenidoJSON = JSON.stringify(datos, null, 2);
             const contenidoBase64 = btoa(unescape(encodeURIComponent(contenidoJSON)));
@@ -829,18 +829,28 @@
                 if (kioscos.datos) {
                     appData.kioscos = kioscos.datos;
                     currentSha.kioscos = kioscos.sha;
+                } else {
+                    appData.kioscos = [];
                 }
 
                 const pedidos = await leerArchivoGitHub('pedidos.json');
                 if (pedidos.datos) {
                     appData.pedidos = pedidos.datos;
                     currentSha.pedidos = pedidos.sha;
+                } else {
+                    appData.pedidos = [];
                 }
 
                 const precios = await leerArchivoGitHub('precios.json');
                 if (precios.datos) {
                     appData.precios = precios.datos;
                     currentSha.precios = precios.sha;
+                } else {
+                    appData.precios = {
+                        fullBox: 0,
+                        halfBox: 0,
+                        bulkBox: 0
+                    };
                 }
 
                 displayKiosks();
