@@ -838,33 +838,42 @@
                 showSyncStatus('⏳ Cargando datos...');
             }
 
+            console.log('🔄 Iniciando sincronización con GitHub...');
+            console.log(`📍 Repositorio: ${REPO_OWNER}/${REPO_NAME}/alfajores/`);
+
             try {
                 const kioscos = await leerArchivoGitHub('kioscos.json');
                 if (kioscos.datos) {
                     appData.kioscos = kioscos.datos;
                     currentSha.kioscos = kioscos.sha;
+                    console.log(`✅ Kioscos cargados: ${appData.kioscos.length} registros`);
                 } else {
                     appData.kioscos = [];
+                    console.log('ℹ️ No hay kioscos guardados, iniciando con array vacío');
                 }
 
                 const pedidos = await leerArchivoGitHub('pedidos.json');
                 if (pedidos.datos) {
                     appData.pedidos = pedidos.datos;
                     currentSha.pedidos = pedidos.sha;
+                    console.log(`✅ Pedidos cargados: ${appData.pedidos.length} registros`);
                 } else {
                     appData.pedidos = [];
+                    console.log('ℹ️ No hay pedidos guardados, iniciando con array vacío');
                 }
 
                 const precios = await leerArchivoGitHub('precios.json');
                 if (precios.datos) {
                     appData.precios = precios.datos;
                     currentSha.precios = precios.sha;
+                    console.log('✅ Precios cargados:', appData.precios);
                 } else {
                     appData.precios = {
                         fullBox: 0,
                         halfBox: 0,
                         bulkBox: 0
                     };
+                    console.log('ℹ️ No hay precios guardados, iniciando con valores en 0');
                 }
 
                 displayKiosks();
@@ -874,14 +883,16 @@
                 updateCurrentPricesDisplay();
                 updateOrderPrice();
 
+                console.log('✅ Sincronización completada exitosamente');
+
                 if (!silent) {
                     showSyncStatus('✅ Datos cargados');
                     setTimeout(() => hideSyncStatus(), 2000);
                 }
             } catch (error) {
-                console.error('Error en sincronización:', error);
+                console.error('❌ Error crítico en sincronización:', error);
                 if (!silent) {
-                    showSyncStatus('❌ Error al cargar datos');
+                    showSyncStatus('❌ Error al cargar');
                     setTimeout(() => hideSyncStatus(), 3000);
                 }
             }
