@@ -756,6 +756,8 @@
         async function leerArchivoGitHub(archivo) {
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/alfajores/${archivo}`;
             
+            console.log(`📥 Leyendo ${archivo} desde:`, url);
+            
             try {
                 const response = await fetch(url, {
                     headers: {
@@ -765,6 +767,7 @@
                 });
 
                 if (response.status === 404) {
+                    console.log(`ℹ️ ${archivo} no existe aún (404)`);
                     return { datos: null, sha: null };
                 }
 
@@ -772,18 +775,23 @@
                     const data = await response.json();
                     const contenido = atob(data.content);
                     const datos = JSON.parse(contenido);
+                    console.log(`✅ ${archivo} leído correctamente:`, datos);
                     return { datos, sha: data.sha };
                 }
 
+                const errorData = await response.json();
+                console.error(`❌ Error HTTP ${response.status} al leer ${archivo}:`, errorData);
                 return { datos: null, sha: null };
             } catch (error) {
-                console.error('Error leyendo de GitHub:', error);
+                console.error(`❌ Error al leer ${archivo}:`, error);
                 return { datos: null, sha: null };
             }
         }
 
         async function escribirArchivoGitHub(archivo, datos, sha = null) {
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/alfajores/${archivo}`;
+            
+            console.log(`📤 Guardando ${archivo} en:`, url);
             
             const contenidoJSON = JSON.stringify(datos, null, 2);
             const contenidoBase64 = btoa(unescape(encodeURIComponent(contenidoJSON)));
@@ -795,6 +803,9 @@
 
             if (sha) {
                 payload.sha = sha;
+                console.log(`📝 Actualizando archivo existente (SHA: ${sha.substring(0, 7)}...)`);
+            } else {
+                console.log(`📄 Creando nuevo archivo`);
             }
 
             try {
@@ -809,13 +820,16 @@
 
                 if (response.ok) {
                     const result = await response.json();
+                    console.log(`✅ ${archivo} guardado correctamente`);
                     return result.content.sha;
+                } else {
+                    const errorData = await response.json();
+                    console.error(`❌ Error HTTP ${response.status} al guardar ${archivo}:`, errorData);
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'Error desconocido'}`);
                 }
-
-                return null;
             } catch (error) {
-                console.error('Error escribiendo en GitHub:', error);
-                return null;
+                console.error(`❌ Error de red al guardar ${archivo}:`, error);
+                throw error;
             }
         }
 
@@ -879,26 +893,53 @@
             }
 
             try {
+                console.log('🔄 Iniciando guardado en GitHub...');
+                console.log('📁 Kioscos a guardar:', appData.kioscos);
+                console.log('📁 Pedidos a guardar:', appData.pedidos);
+                console.log('📁 Precios a guardar:', appData.precios);
+
                 const newKioscosSha = await escribirArchivoGitHub('kioscos.json', appData.kioscos, currentSha.kioscos);
-                if (newKioscosSha) currentSha.kioscos = newKioscosSha;
+                if (newKioscosSha) {
+                    currentSha.kioscos = newKioscosSha;
+                    console.log('✅ kioscos.json guardado exitosamente');
+                } else {
+                    console.error('❌ Error al guardar kioscos.json');
+                    throw new Error('No se pudo guardar kioscos.json');
+                }
 
                 const newPedidosSha = await escribirArchivoGitHub('pedidos.json', appData.pedidos, currentSha.pedidos);
-                if (newPedidosSha) currentSha.pedidos = newPedidosSha;
+                if (newPedidosSha) {
+                    currentSha.pedidos = newPedidosSha;
+                    console.log('✅ pedidos.json guardado exitosamente');
+                } else {
+                    console.error('❌ Error al guardar pedidos.json');
+                    throw new Error('No se pudo guardar pedidos.json');
+                }
 
                 const newPreciosSha = await escribirArchivoGitHub('precios.json', appData.precios, currentSha.precios);
-                if (newPreciosSha) currentSha.precios = newPreciosSha;
+                if (newPreciosSha) {
+                    currentSha.precios = newPreciosSha;
+                    console.log('✅ precios.json guardado exitosamente');
+                } else {
+                    console.error('❌ Error al guardar precios.json');
+                    throw new Error('No se pudo guardar precios.json');
+                }
 
                 if (!silent) {
-                    showSyncStatus('✅ Guardado');
+                    showSyncStatus('✅ Guardado exitosamente');
                     setTimeout(() => hideSyncStatus(), 2000);
                 }
+                console.log('✅ Todos los archivos guardados correctamente');
                 return true;
             } catch (error) {
-                console.error('Error guardando en GitHub:', error);
+                console.error('❌ Error crítico guardando en GitHub:', error);
                 if (!silent) {
-                    showSyncStatus('❌ Error al guardar');
-                    setTimeout(() => hideSyncStatus(), 3000);
+                    showSyncStatus('❌ Error: ' + error.message);
+                    setTimeout(() => hideSyncStatus(), 5000);
                 }
+                alert('Error al guardar en GitHub: ' + error.message + '
+
+Revisa la consola del navegador (F12) para más detalles.');
                 return false;
             }
         }
