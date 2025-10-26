@@ -32,7 +32,7 @@ button{background:linear-gradient(135deg,#8B6F47 0%,#6F4E37 100%);color:white;pa
 button:hover{transform:translateY(-2px);}
 button:disabled{opacity:0.6;cursor:not-allowed;}
 .kiosk-list{display:grid;gap:15px;margin-top:20px;}
-.kiosk-item{background:#FFF8DC;padding:20px;border-radius:10px;border-left:5px solid #8B6F47;display:flex;justify-content:space-between;align-items:center;}
+.kiosk-item{background:#FFF8DC;padding:20px;border-radius:10px;border-left:5px solid #8B6F47;display:flex;flex-direction:column;gap:15px;}
 .kiosk-info h3{color:#6F4E37;margin-bottom:5px;}
 .kiosk-info p{color:#8B6F47;font-size:14px;margin:3px 0;}
 .quantity-controls{display:flex;gap:15px;margin-top:15px;}
@@ -41,11 +41,11 @@ button:disabled{opacity:0.6;cursor:not-allowed;}
 .quantity-input{display:flex;align-items:center;gap:10px;}
 .quantity-input button{width:40px;height:40px;padding:0;font-size:20px;}
 .quantity-input input{width:80px;text-align:center;}
-.delete-btn{background:#A0522D;padding:8px 15px;font-size:14px;}
+.delete-btn{background:#A0522D;padding:8px 15px;font-size:14px;width:100%;}
 .delete-btn:hover{background:#8B4513;}
-.delete-order-btn{background:#c0392b;padding:6px 12px;font-size:13px;border:none;border-radius:8px;color:white;cursor:pointer;margin-top:8px;}
+.delete-order-btn{background:#c0392b;padding:6px 12px;font-size:13px;border:none;border-radius:8px;color:white;cursor:pointer;}
 .empty-state{text-align:center;padding:40px;color:#999;}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-bottom:20px;}
 .stat-card{background:linear-gradient(135deg,#8B6F47 0%,#6F4E37 100%);color:white;padding:20px;border-radius:10px;text-align:center;}
 .stat-card h4{font-size:14px;opacity:0.9;margin-bottom:10px;}
 .stat-card p{font-size:32px;font-weight:bold;}
@@ -63,9 +63,9 @@ button:disabled{opacity:0.6;cursor:not-allowed;}
 small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 .loading{text-align:center;padding:40px;color:#6F4E37;font-size:18px;}
 .order-list{margin-top:20px;}
-.week-navigation{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px;background:#FFF8DC;border-radius:10px;}
-.week-navigation button{padding:10px 20px;font-size:14px;}
-.week-navigation h3{color:#6F4E37;font-size:18px;}
+.week-navigation{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px;background:#FFF8DC;border-radius:10px;flex-wrap:wrap;gap:10px;}
+.week-navigation button{padding:10px 20px;font-size:14px;flex-shrink:0;}
+.week-navigation h3{color:#6F4E37;font-size:18px;text-align:center;flex:1;min-width:200px;}
 .kiosk-group{background:#FFF8DC;padding:20px;margin:15px 0;border-radius:10px;border-left:5px solid #8B6F47;}
 .kiosk-group-header{color:#6F4E37;font-size:20px;font-weight:bold;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #D2B48C;}
 .order-item{background:white;padding:15px;margin:10px 0;border-radius:8px;border-left:3px solid #8B6F47;}
@@ -78,10 +78,31 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 .status-badge.paid{background:#d4edda;color:#155724;}
 .status-badge.pending-pay{background:#f8d7da;color:#721c24;}
 .action-buttons{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.action-buttons button{padding:6px 12px;font-size:13px;}
+.action-buttons button{padding:8px 16px;font-size:13px;flex:1;min-width:120px;}
 .btn-delivery{background:#17a2b8;}
 .btn-payment{background:#28a745;}
-.kiosk-totals{background:#fff;padding:10px;border-radius:8px;margin-top:10px;font-size:14px;color:#6F4E37;}
+.kiosk-totals{background:#fff;padding:15px;border-radius:8px;margin-top:10px;font-size:14px;color:#6F4E37;}
+
+@media (max-width:768px){
+h1{font-size:1.8em;}
+.settings-icon{top:20px;right:20px;width:35px;height:35px;font-size:18px;}
+.tabs{flex-direction:column;gap:8px;}
+.tab-button{padding:12px;font-size:14px;}
+.tab-content{padding:20px;}
+body{padding:10px;}
+.quantity-controls{flex-direction:column;}
+.week-navigation{flex-direction:column;text-align:center;}
+.week-navigation button{width:100%;}
+.week-navigation h3{font-size:16px;order:-1;margin-bottom:10px;}
+.stats{grid-template-columns:repeat(2,1fr);gap:10px;}
+.stat-card{padding:15px;}
+.stat-card p{font-size:24px;}
+.kiosk-group-header{font-size:18px;}
+.order-item{padding:12px;}
+.action-buttons{flex-direction:column;}
+.action-buttons button{width:100%;min-width:auto;}
+.kiosk-item{padding:15px;}
+}
 </style>
 </head>
 <body>
@@ -160,8 +181,8 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 <div id="history" class="tab-content">
 <h2>Historial por Semana</h2>
 <div class="week-navigation">
-<button onclick="changeWeek(-1)">⬅️ Anterior</button>
 <h3 id="currentWeekDisplay">Cargando...</h3>
+<button onclick="changeWeek(-1)">⬅️ Anterior</button>
 <button onclick="changeWeek(1)">Siguiente ➡️</button>
 </div>
 <div class="stats" id="stats"></div>
@@ -433,9 +454,18 @@ function calculateWeeks() {
 }
 
 function changeWeek(delta) {
+    if (allWeeks.length === 0) return;
+    
     currentWeekIndex += delta;
-    if (currentWeekIndex < 0) currentWeekIndex = 0;
-    if (currentWeekIndex >= allWeeks.length) currentWeekIndex = allWeeks.length - 1;
+    
+    // Limitar el índice
+    if (currentWeekIndex < 0) {
+        currentWeekIndex = 0;
+    }
+    if (currentWeekIndex >= allWeeks.length) {
+        currentWeekIndex = allWeeks.length - 1;
+    }
+    
     displayOrdersByWeek();
     displayStats();
 }
