@@ -66,8 +66,13 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 .week-navigation{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px;background:#FFF8DC;border-radius:10px;flex-wrap:wrap;gap:10px;}
 .week-navigation button{padding:10px 20px;font-size:14px;flex-shrink:0;}
 .week-navigation h3{color:#6F4E37;font-size:18px;text-align:center;flex:1;min-width:200px;}
-.kiosk-group{background:#FFF8DC;padding:20px;margin:15px 0;border-radius:10px;border-left:5px solid #8B6F47;}
-.kiosk-group-header{color:#6F4E37;font-size:20px;font-weight:bold;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #D2B48C;}
+.kiosk-group{background:#FFF8DC;padding:20px;margin:15px 0;border-radius:10px;border-left:5px solid #8B6F47;cursor:pointer;transition:all 0.3s;}
+.kiosk-group:hover{box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+.kiosk-group-header{color:#6F4E37;font-size:20px;font-weight:bold;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #D2B48C;display:flex;justify-content:space-between;align-items:center;}
+.expand-icon{font-size:18px;color:#8B6F47;transition:transform 0.3s;}
+.kiosk-group.expanded .expand-icon{transform:rotate(180deg);}
+.kiosk-orders{display:none;margin-top:15px;}
+.kiosk-group.expanded .kiosk-orders{display:block;}
 .order-item{background:white;padding:15px;margin:10px 0;border-radius:8px;border-left:3px solid #8B6F47;}
 .order-item.pending-delivery{border-left-color:#FF6B6B;}
 .order-item.pending-payment{border-left-color:#FFA500;}
@@ -81,7 +86,8 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 .action-buttons button{padding:8px 16px;font-size:13px;flex:1;min-width:120px;}
 .btn-delivery{background:#17a2b8;}
 .btn-payment{background:#28a745;}
-.kiosk-totals{background:#fff;padding:15px;border-radius:8px;margin-top:10px;font-size:14px;color:#6F4E37;}
+.kiosk-totals{background:#fff;padding:15px;border-radius:8px;font-size:14px;color:#6F4E37;}
+.kiosk-totals-summary{background:#f8f9fa;padding:10px 15px;border-radius:8px;margin-top:10px;font-size:14px;color:#6F4E37;}
 
 @media (max-width:768px){
 h1{font-size:1.8em;}
@@ -182,8 +188,8 @@ body{padding:10px;}
 <h2>Historial por Semana</h2>
 <div class="week-navigation">
 <h3 id="currentWeekDisplay">Cargando...</h3>
-<button onclick="changeWeek(-1)">⬅️ Anterior</button>
-<button onclick="changeWeek(1)">Siguiente ➡️</button>
+<button onclick="event.stopPropagation(); changeWeek(-1)">⬅️ Anterior</button>
+<button onclick="event.stopPropagation(); changeWeek(1)">Siguiente ➡️</button>
 </div>
 <div class="stats" id="stats"></div>
 <button onclick="exportData()">📥 Descargar Respaldo</button>
@@ -454,20 +460,41 @@ function calculateWeeks() {
 }
 
 function changeWeek(delta) {
-    if (allWeeks.length === 0) return;
-    
-    currentWeekIndex += delta;
-    
-    // Limitar el índice
-    if (currentWeekIndex < 0) {
-        currentWeekIndex = 0;
+    if (allWeeks.length === 0) {
+        console.log('No hay semanas disponibles');
+        return;
     }
-    if (currentWeekIndex >= allWeeks.length) {
-        currentWeekIndex = allWeeks.length - 1;
+    
+    const newIndex = currentWeekIndex + delta;
+    
+    console.log('Cambio de semana:', {
+        delta: delta,
+        currentIndex: currentWeekIndex,
+        newIndex: newIndex,
+        totalWeeks: allWeeks.length
+    });
+    
+    if (newIndex < 0) {
+        console.log('Ya estás en la semana más reciente');
+        return;
     }
+    
+    if (newIndex >= allWeeks.length) {
+        console.log('Ya estás en la semana más antigua');
+        return;
+    }
+    
+    currentWeekIndex = newIndex;
     
     displayOrdersByWeek();
     displayStats();
+}
+
+function toggleKioskGroup(kioskId) {
+    const group = document.getElementById('kiosk-group-' + kioskId);
+    if (group) {
+        group.classList.toggle('expanded');
+    }
 }
 
 function displayOrdersByWeek() {
@@ -522,8 +549,20 @@ function displayOrdersByWeek() {
         const totalPrice = group.orders.reduce((sum, o) => sum + (o.price || 0), 0);
         const totalUnits = group.orders.reduce((sum, o) => sum + o.totalUnits, 0);
         
-        html += '<div class="kiosk-group">';
-        html += '<div class="kiosk-group-header">🏪 ' + group.kioskName + '</div>';
+        html += '<div class="kiosk-group" id="kiosk-group-' + kioskId + '" onclick="toggleKioskGroup(' + kioskId + ')">';
+        html += '<div class="kiosk-group-header">';
+        html += '<span>🏪 ' + group.kioskName + '</span>';
+        html += '<span class="expand-icon">▼</span>';
+        html += '</div>';
+        
+        html += '<div class="kiosk-totals-summary">';
+        html += '<strong>📊 Resumen:</strong><br>';
+        html += '🍪 Docenas: ' + totalFullBox + ' | Medias: ' + totalHalfBox + '<br>';
+        html += '📦 Unidades: ' + totalUnits + '<br>';
+        html += '💰 Total: ' + formatPrice(totalPrice);
+        html += '</div>';
+        
+        html += '<div class="kiosk-orders">';
         
         group.orders.forEach(order => {
             const deliveryClass = order.pendingDelivery ? 'pending-delivery' : '';
@@ -538,11 +577,11 @@ function displayOrdersByWeek() {
                 ? '<p style="color:#CD853F;font-size:12px;">✨ Precio mayorista</p>' 
                 : '';
             const deliveryBtn = order.pendingDelivery
-                ? '<button class="btn-delivery" onclick="toggleDelivery(' + order.id + ')">✅ Marcar Entregado</button>'
-                : '<button class="btn-delivery" onclick="toggleDelivery(' + order.id + ')">↩️ Marcar Pendiente</button>';
+                ? '<button class="btn-delivery" onclick="event.stopPropagation(); toggleDelivery(' + order.id + ')">✅ Marcar Entregado</button>'
+                : '<button class="btn-delivery" onclick="event.stopPropagation(); toggleDelivery(' + order.id + ')">↩️ Marcar Pendiente</button>';
             const paymentBtn = order.pendingPayment
-                ? '<button class="btn-payment" onclick="togglePayment(' + order.id + ')">✅ Marcar Pagado</button>'
-                : '<button class="btn-payment" onclick="togglePayment(' + order.id + ')">↩️ Marcar Pendiente</button>';
+                ? '<button class="btn-payment" onclick="event.stopPropagation(); togglePayment(' + order.id + ')">✅ Marcar Pagado</button>'
+                : '<button class="btn-payment" onclick="event.stopPropagation(); togglePayment(' + order.id + ')">↩️ Marcar Pendiente</button>';
             
             html += '<div class="order-item ' + deliveryClass + ' ' + paymentClass + '">';
             html += '<p style="margin:5px 0;">📅 ' + formatDate(order.createdAt) + '</p>';
@@ -551,15 +590,10 @@ function displayOrdersByWeek() {
             html += '<p style="margin:5px 0;font-weight:600;color:#6F4E37;">💰 ' + formatPrice(order.price || 0) + '</p>';
             html += bulkText;
             html += '<div class="status-badges">' + deliveryBadge + paymentBadge + '</div>';
-            html += '<div class="action-buttons">' + deliveryBtn + paymentBtn + '<button class="delete-order-btn" onclick="deleteOrder(' + order.id + ')">🗑️ Eliminar</button></div>';
+            html += '<div class="action-buttons">' + deliveryBtn + paymentBtn + '<button class="delete-order-btn" onclick="event.stopPropagation(); deleteOrder(' + order.id + ')">🗑️ Eliminar</button></div>';
             html += '</div>';
         });
         
-        html += '<div class="kiosk-totals">';
-        html += '<strong>Total del kiosco:</strong><br>';
-        html += '🍪 Docenas: ' + totalFullBox + ' | Medias: ' + totalHalfBox + '<br>';
-        html += '📦 Unidades: ' + totalUnits + '<br>';
-        html += '💰 Total: ' + formatPrice(totalPrice);
         html += '</div>';
         html += '</div>';
     });
