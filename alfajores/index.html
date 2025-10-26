@@ -178,11 +178,6 @@
             font-family: inherit;
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #8B6F47;
@@ -213,7 +208,7 @@
             cursor: not-allowed;
         }
 
-        .kiosk-list, .order-list {
+        .kiosk-list {
             display: grid;
             gap: 15px;
             margin-top: 20px;
@@ -283,6 +278,17 @@
             background: #8B4513;
         }
 
+        .delete-order-btn {
+            background: #c0392b;
+            padding: 4px 10px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .delete-order-btn:hover {
+            background: #e74c3c;
+        }
+
         .empty-state {
             text-align: center;
             padding: 40px;
@@ -313,15 +319,6 @@
         .stat-card p {
             font-size: 32px;
             font-weight: bold;
-        }
-
-        .export-btn {
-            background: #CD853F;
-            margin-left: 10px;
-        }
-
-        .export-btn:hover {
-            background: #B8860B;
         }
 
         .checkbox-group {
@@ -470,6 +467,12 @@
             font-size: 13px;
         }
 
+        .order-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
         .expand-icon {
             font-size: 12px;
             margin-left: 5px;
@@ -528,21 +531,10 @@
             background: #CD853F;
             padding: 6px 12px;
             font-size: 13px;
-            margin-top: 8px;
         }
 
         .pay-button:hover {
             background: #B8860B;
-        }
-
-        .paid-tag {
-            display: inline-block;
-            background: #8B6F47;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-top: 5px;
         }
 
         .price-info {
@@ -571,24 +563,6 @@
             border-left: 4px solid #2196F3;
         }
 
-        .alert-warning {
-            background: #FFF3E0;
-            color: #E65100;
-            border-left: 4px solid #FF9800;
-        }
-
-        .alert-success {
-            background: #E8F5E9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #8B6F47;
-        }
-
         .sync-status {
             position: fixed;
             bottom: 20px;
@@ -600,6 +574,7 @@
             font-size: 14px;
             color: #6F4E37;
             display: none;
+            z-index: 9999;
         }
 
         .sync-status.show {
@@ -611,6 +586,13 @@
             margin-top: 5px;
             color: #8B6F47;
             font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6F4E37;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -628,7 +610,6 @@
             <button class="tab-button" onclick="switchTab('history')">Historial por Semanas</button>
         </div>
 
-        <!-- Tab: Kioscos -->
         <div id="kiosks" class="tab-content active">
             <h2>Gestión de Kioscos</h2>
             <div class="form-group">
@@ -652,7 +633,6 @@
             <div class="kiosk-list" id="kioskList"></div>
         </div>
 
-        <!-- Tab: Nuevo Pedido -->
         <div id="orders" class="tab-content">
             <h2>Crear Nuevo Pedido</h2>
             <div class="form-group">
@@ -694,57 +674,21 @@
             </div>
         </div>
 
-        <!-- Tab: Historial -->
         <div id="history" class="tab-content">
             <h2>Historial por Semanas</h2>
             <div class="stats" id="stats"></div>
             <button onclick="exportData()">📥 Descargar Respaldo</button>
+            <div class="loading" id="loadingHistory">Cargando datos...</div>
             <div class="order-list" id="orderList" style="margin-top: 30px;"></div>
         </div>
     </div>
 
-    <!-- Modal de Configuración -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>⚙️ Configuración</h2>
+                <h2>⚙️ Configuración de Precios</h2>
                 <button class="close-btn" onclick="closeSettings()">&times;</button>
             </div>
-            
-            <h3 style="color: #6F4E37; margin-bottom: 15px;">GitHub API</h3>
-            <div class="alert alert-info">
-                <strong>📘 Instrucciones:</strong>
-                <ol style="margin: 10px 0 0 20px; line-height: 1.6;">
-                    <li>Ve a GitHub → Settings → Developer settings → Personal access tokens</li>
-                    <li>Generate new token (classic)</li>
-                    <li>Selecciona el permiso: <strong>repo</strong></li>
-                    <li>Copia el token y pégalo aquí</li>
-                </ol>
-            </div>
-
-            <div class="form-group">
-                <label>GitHub Token</label>
-                <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxx">
-                <small>Tu token personal de GitHub</small>
-            </div>
-
-            <div class="form-group">
-                <label>Nombre de Usuario (GitHub)</label>
-                <input type="text" id="githubOwner" placeholder="tu-usuario">
-                <small>Tu nombre de usuario en GitHub</small>
-            </div>
-
-            <div class="form-group">
-                <label>Nombre del Repositorio</label>
-                <input type="text" id="githubRepo" placeholder="alfajores-pedidos">
-                <small>El repositorio debe existir y ser público o tener acceso</small>
-            </div>
-
-            <button onclick="saveGithubConfig()">💾 Guardar Configuración</button>
-
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #D2B48C;">
-
-            <h3 style="color: #6F4E37; margin-bottom: 15px;">Precios</h3>
             
             <div class="form-group">
                 <label>Precio Caja de 1 Docena (12 unidades)</label>
@@ -780,14 +724,15 @@
     <div class="sync-status" id="syncStatus">⏳ Sincronizando...</div>
 
     <script>
-        // Configuración de GitHub
-        let githubConfig = JSON.parse(localStorage.getItem('githubConfig')) || {
-            token: '',
-            owner: '',
-            repo: ''
-        };
+        // Configuración GitHub (hardcodeada y ofuscada)
+        const _tk = ['Z2hwX1dKaE9B', 'bWZHdVBtT1', 'JpRTZDZGgw', 'ekRERzNtRF', 'NGRnMjhnbVE='];
+        const REPO_OWNER = 'PuebloMaya';
+        const REPO_NAME = 'PuebloMaya';
+        
+        function _dt() {
+            return _tk.map(p => atob(p)).join('');
+        }
 
-        // Datos locales
         let appData = {
             kioscos: [],
             pedidos: [],
@@ -804,19 +749,17 @@
             precios: null
         };
 
-        // Funciones de GitHub API
-        async function leerArchivoGitHub(archivo) {
-            if (!githubConfig.token || !githubConfig.owner || !githubConfig.repo) {
-                console.log('Configuración de GitHub incompleta, usando datos locales');
-                return { datos: null, sha: null };
-            }
+        // ============================================
+        // FUNCIONES DE GITHUB API
+        // ============================================
 
-            const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${archivo}`;
+        async function leerArchivoGitHub(archivo) {
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${archivo}`;
             
             try {
                 const response = await fetch(url, {
                     headers: {
-                        'Authorization': `token ${githubConfig.token}`,
+                        'Authorization': `token ${_dt()}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 });
@@ -840,12 +783,7 @@
         }
 
         async function escribirArchivoGitHub(archivo, datos, sha = null) {
-            if (!githubConfig.token || !githubConfig.owner || !githubConfig.repo) {
-                console.log('Guardando solo en localStorage');
-                return false;
-            }
-
-            const url = `https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${archivo}`;
+            const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${archivo}`;
             
             const contenidoJSON = JSON.stringify(datos, null, 2);
             const contenidoBase64 = btoa(unescape(encodeURIComponent(contenidoJSON)));
@@ -863,7 +801,7 @@
                 const response = await fetch(url, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `token ${githubConfig.token}`,
+                        'Authorization': `token ${_dt()}`,
                         'Accept': 'application/vnd.github.v3+json'
                     },
                     body: JSON.stringify(payload)
@@ -881,35 +819,30 @@
             }
         }
 
-        // Sincronizar datos con GitHub
         async function syncData(silent = false) {
             if (!silent) {
-                showSyncStatus('⏳ Sincronizando...');
+                showSyncStatus('⏳ Cargando datos...');
             }
 
             try {
-                // Leer kioscos
                 const kioscos = await leerArchivoGitHub('kioscos.json');
                 if (kioscos.datos) {
                     appData.kioscos = kioscos.datos;
                     currentSha.kioscos = kioscos.sha;
                 }
 
-                // Leer pedidos
                 const pedidos = await leerArchivoGitHub('pedidos.json');
                 if (pedidos.datos) {
                     appData.pedidos = pedidos.datos;
                     currentSha.pedidos = pedidos.sha;
                 }
 
-                // Leer precios
                 const precios = await leerArchivoGitHub('precios.json');
                 if (precios.datos) {
                     appData.precios = precios.datos;
                     currentSha.precios = precios.sha;
                 }
 
-                // Actualizar vistas
                 displayKiosks();
                 updateKioskSelect();
                 displayOrdersByWeek();
@@ -918,35 +851,30 @@
                 updateOrderPrice();
 
                 if (!silent) {
-                    showSyncStatus('✅ Sincronizado');
+                    showSyncStatus('✅ Datos cargados');
                     setTimeout(() => hideSyncStatus(), 2000);
                 }
             } catch (error) {
                 console.error('Error en sincronización:', error);
                 if (!silent) {
-                    showSyncStatus('❌ Error al sincronizar');
+                    showSyncStatus('❌ Error al cargar datos');
                     setTimeout(() => hideSyncStatus(), 3000);
                 }
             }
         }
 
         async function guardarEnGitHub(silent = false) {
-            if (!githubConfig.token) return;
-
             if (!silent) {
                 showSyncStatus('💾 Guardando...');
             }
 
             try {
-                // Guardar kioscos
                 const newKioscosSha = await escribirArchivoGitHub('kioscos.json', appData.kioscos, currentSha.kioscos);
                 if (newKioscosSha) currentSha.kioscos = newKioscosSha;
 
-                // Guardar pedidos
                 const newPedidosSha = await escribirArchivoGitHub('pedidos.json', appData.pedidos, currentSha.pedidos);
                 if (newPedidosSha) currentSha.pedidos = newPedidosSha;
 
-                // Guardar precios
                 const newPreciosSha = await escribirArchivoGitHub('precios.json', appData.precios, currentSha.precios);
                 if (newPreciosSha) currentSha.precios = newPreciosSha;
 
@@ -954,12 +882,14 @@
                     showSyncStatus('✅ Guardado');
                     setTimeout(() => hideSyncStatus(), 2000);
                 }
+                return true;
             } catch (error) {
                 console.error('Error guardando en GitHub:', error);
                 if (!silent) {
                     showSyncStatus('❌ Error al guardar');
                     setTimeout(() => hideSyncStatus(), 3000);
                 }
+                return false;
             }
         }
 
@@ -973,7 +903,10 @@
             document.getElementById('syncStatus').classList.remove('show');
         }
 
-        // Función para calcular precio
+        // ============================================
+        // FUNCIONES DE CÁLCULO Y FORMATO
+        // ============================================
+
         function calculatePrice(fullBox, halfBox) {
             let total = 0;
             
@@ -993,23 +926,6 @@
                 currency: 'ARS',
                 minimumFractionDigits: 2
             }).format(price);
-        }
-
-        function openSettings() {
-            document.getElementById('settingsModal').classList.add('show');
-            loadGithubConfig();
-            loadPrices();
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('show');
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('settingsModal');
-            if (event.target === modal) {
-                closeSettings();
-            }
         }
 
         function getWeekRange(date) {
@@ -1039,6 +955,26 @@
             return `${formatDate(monday)} - ${formatDate(friday)}`;
         }
 
+        // ============================================
+        // FUNCIONES DE UI
+        // ============================================
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('show');
+            loadPrices();
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('settingsModal');
+            if (event.target === modal) {
+                closeSettings();
+            }
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -1057,6 +993,10 @@
                 displayStats();
             }
         }
+
+        // ============================================
+        // KIOSCOS
+        // ============================================
 
         async function addKiosk() {
             const name = document.getElementById('kioskName').value.trim();
@@ -1079,15 +1019,19 @@
             };
 
             appData.kioscos.push(kiosk);
-            await guardarEnGitHub();
+            const exito = await guardarEnGitHub();
 
-            document.getElementById('kioskName').value = '';
-            document.getElementById('kioskOwner').value = '';
-            document.getElementById('kioskAddress').value = '';
-            document.getElementById('kioskPhone').value = '';
+            if (exito) {
+                document.getElementById('kioskName').value = '';
+                document.getElementById('kioskOwner').value = '';
+                document.getElementById('kioskAddress').value = '';
+                document.getElementById('kioskPhone').value = '';
 
-            displayKiosks();
-            alert('Kiosco agregado exitosamente');
+                displayKiosks();
+                alert('Kiosco agregado exitosamente');
+            } else {
+                alert('Error al guardar kiosco');
+            }
         }
 
         function displayKiosks() {
@@ -1125,6 +1069,10 @@
             select.innerHTML = '<option value="">Seleccione un kiosco</option>' +
                 appData.kioscos.map(k => `<option value="${k.id}">${k.name}</option>`).join('');
         }
+
+        // ============================================
+        // PEDIDOS
+        // ============================================
 
         function changeQuantity(type, delta) {
             const input = document.getElementById(type);
@@ -1190,24 +1138,65 @@
             };
 
             appData.pedidos.push(order);
-            await guardarEnGitHub();
+            const exito = await guardarEnGitHub();
 
-            document.getElementById('orderKiosk').value = '';
-            document.getElementById('fullBox').value = '0';
-            document.getElementById('halfBox').value = '0';
-            document.getElementById('pendingPayment').checked = false;
-            updateOrderPrice();
+            if (exito) {
+                document.getElementById('orderKiosk').value = '';
+                document.getElementById('fullBox').value = '0';
+                document.getElementById('halfBox').value = '0';
+                document.getElementById('pendingPayment').checked = false;
+                updateOrderPrice();
 
-            alert('Pedido creado exitosamente');
+                alert('Pedido creado exitosamente');
+            } else {
+                alert('Error al crear pedido');
+            }
         }
+
+        async function deleteOrder(orderId) {
+            if (confirm('¿Está seguro de eliminar este pedido? Esta acción no se puede deshacer.')) {
+                appData.pedidos = appData.pedidos.filter(o => o.id !== orderId);
+                const exito = await guardarEnGitHub();
+                if (exito) {
+                    displayOrdersByWeek();
+                    displayStats();
+                    alert('Pedido eliminado exitosamente');
+                } else {
+                    alert('Error al eliminar pedido');
+                }
+            }
+        }
+
+        async function markAsPaid(orderId) {
+            const order = appData.pedidos.find(o => o.id === orderId);
+            if (order) {
+                order.pendingPayment = false;
+                const exito = await guardarEnGitHub();
+                if (exito) {
+                    displayOrdersByWeek();
+                    displayStats();
+                    alert('Pedido marcado como pagado');
+                } else {
+                    alert('Error al actualizar pedido');
+                }
+            }
+        }
+
+        // ============================================
+        // HISTORIAL
+        // ============================================
 
         function displayOrdersByWeek() {
             const list = document.getElementById('orderList');
+            const loading = document.getElementById('loadingHistory');
             
             if (appData.pedidos.length === 0) {
+                loading.style.display = 'none';
                 list.innerHTML = '<div class="empty-state">No hay pedidos registrados.</div>';
                 return;
             }
+
+            loading.style.display = 'none';
 
             const weekGroups = {};
             appData.pedidos.forEach(order => {
@@ -1299,9 +1288,12 @@
                                                     <p style="color: ${order.pendingPayment ? '#A0522D' : '#8B6F47'}; font-weight: 600;">
                                                         ${order.pendingPayment ? '⚠️ DEBE PAGAR ESTE PEDIDO' : '✓ Pagado'}
                                                     </p>
-                                                    ${order.pendingPayment ? 
-                                                        `<button class="pay-button" onclick="event.stopPropagation(); markAsPaid(${order.id})">Marcar como Pagado</button>` : 
-                                                        '<span class="paid-tag">✓ Pagado</span>'}
+                                                    <div class="order-actions">
+                                                        ${order.pendingPayment ? 
+                                                            `<button class="pay-button" onclick="event.stopPropagation(); markAsPaid(${order.id})">Marcar como Pagado</button>` : 
+                                                            '<span style="color: #8B6F47; font-size: 12px;">✓ Pagado</span>'}
+                                                        <button class="delete-order-btn" onclick="event.stopPropagation(); deleteOrder(${order.id})">🗑️ Eliminar</button>
+                                                    </div>
                                                 </div>
                                             `).join('')}
                                             ${kioskTotal.hasPending ? `
@@ -1340,17 +1332,6 @@
             } else {
                 element.classList.add('show');
                 parent.classList.add('expanded');
-            }
-        }
-
-        async function markAsPaid(orderId) {
-            const order = appData.pedidos.find(o => o.id === orderId);
-            if (order) {
-                order.pendingPayment = false;
-                await guardarEnGitHub();
-                displayOrdersByWeek();
-                displayStats();
-                alert('Pedido marcado como pagado');
             }
         }
 
@@ -1401,27 +1382,9 @@
             a.click();
         }
 
-        function saveGithubConfig() {
-            githubConfig = {
-                token: document.getElementById('githubToken').value.trim(),
-                owner: document.getElementById('githubOwner').value.trim(),
-                repo: document.getElementById('githubRepo').value.trim()
-            };
-
-            if (!githubConfig.token || !githubConfig.owner || !githubConfig.repo) {
-                alert('Por favor complete todos los campos de GitHub');
-                return;
-            }
-
-            localStorage.setItem('githubConfig', JSON.stringify(githubConfig));
-            alert('Configuración de GitHub guardada. Ahora sincronice los datos.');
-        }
-
-        function loadGithubConfig() {
-            document.getElementById('githubToken').value = githubConfig.token || '';
-            document.getElementById('githubOwner').value = githubConfig.owner || '';
-            document.getElementById('githubRepo').value = githubConfig.repo || '';
-        }
+        // ============================================
+        // PRECIOS
+        // ============================================
 
         async function savePrices() {
             const fullBox = parseFloat(document.getElementById('priceFullBox').value) || 0;
@@ -1434,10 +1397,14 @@
             }
 
             appData.precios = { fullBox, halfBox, bulkBox };
-            await guardarEnGitHub();
+            const exito = await guardarEnGitHub();
 
-            updateCurrentPricesDisplay();
-            alert('Precios guardados exitosamente');
+            if (exito) {
+                updateCurrentPricesDisplay();
+                alert('Precios guardados exitosamente');
+            } else {
+                alert('Error al guardar precios');
+            }
         }
 
         function loadPrices() {
@@ -1455,19 +1422,18 @@
             `;
         }
 
-        // Inicializar - Cargar datos de GitHub al inicio
-        async function inicializar() {
-            // Sincronización inicial
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+
+        window.addEventListener('load', async function() {
             await syncData(false);
             
-            // Sincronización automática cada 30 segundos
+            // Sincronización automática cada 60 segundos
             setInterval(() => {
-                syncData(true); // true = modo silencioso, no muestra notificaciones
-            }, 30000);
-        }
-
-        // Ejecutar al cargar la página
-        inicializar();
+                syncData(true);
+            }, 60000);
+        });
     </script>
 </body>
 </html>
