@@ -40,19 +40,5 @@
     "pendingPayment": false,
     "createdAt": "2025-10-26T20:08:08.045Z",
     "date": "26/10/2025"
-  },
-  {
-    "id": 1761941430968,
-    "kioskId": 1761941378434,
-    "kioskName": "asd",
-    "fullBox": 4,
-    "halfBox": 0,
-    "totalUnits": 48,
-    "price": 0,
-    "isBulkPrice": false,
-    "pendingDelivery": false,
-    "pendingPayment": false,
-    "createdAt": "2025-10-31T20:10:30.968Z",
-    "date": "31/10/2025"
   }
 ]
