@@ -43,13 +43,13 @@ button:disabled{opacity:0.6;cursor:not-allowed;}
 .quantity-input input{width:80px;text-align:center;}
 .delete-btn{background:#A0522D;padding:8px 15px;font-size:14px;}
 .delete-btn:hover{background:#8B4513;}
-.delete-order-btn{background:#c0392b;padding:4px 10px;font-size:12px;margin-left:8px;}
+.delete-order-btn{background:#c0392b;padding:6px 12px;font-size:13px;border:none;border-radius:8px;color:white;cursor:pointer;margin-top:8px;}
 .empty-state{text-align:center;padding:40px;color:#999;}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px;}
 .stat-card{background:linear-gradient(135deg,#8B6F47 0%,#6F4E37 100%);color:white;padding:20px;border-radius:10px;text-align:center;}
 .stat-card h4{font-size:14px;opacity:0.9;margin-bottom:10px;}
 .stat-card p{font-size:32px;font-weight:bold;}
-.checkbox-group{display:flex;align-items:center;gap:10px;margin-top:20px;padding:15px;background:#FFF8DC;border-radius:8px;border:2px solid #DEB887;}
+.checkbox-group{display:flex;align-items:center;gap:10px;margin-top:15px;padding:15px;background:#FFF8DC;border-radius:8px;border:2px solid #DEB887;}
 .checkbox-group input[type="checkbox"]{width:24px;height:24px;cursor:pointer;}
 .checkbox-group label{margin:0;cursor:pointer;color:#8B4513;font-size:16px;}
 .price-display{background:#FFF8DC;padding:15px;border-radius:8px;margin-top:15px;border:2px solid #DEB887;}
@@ -63,6 +63,25 @@ button:disabled{opacity:0.6;cursor:not-allowed;}
 small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 .loading{text-align:center;padding:40px;color:#6F4E37;font-size:18px;}
 .order-list{margin-top:20px;}
+.week-navigation{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:15px;background:#FFF8DC;border-radius:10px;}
+.week-navigation button{padding:10px 20px;font-size:14px;}
+.week-navigation h3{color:#6F4E37;font-size:18px;}
+.kiosk-group{background:#FFF8DC;padding:20px;margin:15px 0;border-radius:10px;border-left:5px solid #8B6F47;}
+.kiosk-group-header{color:#6F4E37;font-size:20px;font-weight:bold;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #D2B48C;}
+.order-item{background:white;padding:15px;margin:10px 0;border-radius:8px;border-left:3px solid #8B6F47;}
+.order-item.pending-delivery{border-left-color:#FF6B6B;}
+.order-item.pending-payment{border-left-color:#FFA500;}
+.status-badges{display:flex;gap:10px;margin:10px 0;flex-wrap:wrap;}
+.status-badge{display:inline-block;padding:5px 12px;border-radius:15px;font-size:13px;font-weight:600;}
+.status-badge.delivered{background:#d4edda;color:#155724;}
+.status-badge.pending-del{background:#fff3cd;color:#856404;}
+.status-badge.paid{background:#d4edda;color:#155724;}
+.status-badge.pending-pay{background:#f8d7da;color:#721c24;}
+.action-buttons{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.action-buttons button{padding:6px 12px;font-size:13px;}
+.btn-delivery{background:#17a2b8;}
+.btn-payment{background:#28a745;}
+.kiosk-totals{background:#fff;padding:10px;border-radius:8px;margin-top:10px;font-size:14px;color:#6F4E37;}
 </style>
 </head>
 <body>
@@ -125,8 +144,12 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 </div>
 </div>
 <div class="checkbox-group">
+<input type="checkbox" id="pendingDelivery">
+<label for="pendingDelivery">📦 Entrega pendiente</label>
+</div>
+<div class="checkbox-group">
 <input type="checkbox" id="pendingPayment">
-<label for="pendingPayment">⚠️ Pago pendiente</label>
+<label for="pendingPayment">💰 Pago pendiente</label>
 </div>
 <button onclick="createOrder()" style="margin-top:20px;">Crear Pedido</button>
 <div class="price-display" id="orderPrice">
@@ -135,7 +158,12 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 </div>
 </div>
 <div id="history" class="tab-content">
-<h2>Historial</h2>
+<h2>Historial por Semana</h2>
+<div class="week-navigation">
+<button onclick="changeWeek(-1)">⬅️ Anterior</button>
+<h3 id="currentWeekDisplay">Cargando...</h3>
+<button onclick="changeWeek(1)">Siguiente ➡️</button>
+</div>
 <div class="stats" id="stats"></div>
 <button onclick="exportData()">📥 Descargar Respaldo</button>
 <div class="loading" id="loadingHistory">Cargando...</div>
@@ -176,12 +204,14 @@ small{display:block;margin-top:5px;color:#8B6F47;font-size:12px;}
 </div>
 <div class="sync-status" id="syncStatus">⏳ Sincronizando...</div>
 <script>
-const _tk=['Z2hwX1lPQnk=','am1rRU1CZEQ=','OWE4bnNqUng=','V2pwWURKejY=','cWcxN0NIcU4='];
+const _tk=['Z2hwX1lPQnk=','am1rRU1CZGQ=','OWE4bnNqUng=','V2pwWURKejY=','cWcxN0NIcU4='];
 const REPO_OWNER='PuebloMaya';
 const REPO_NAME='PuebloMaya';
 function _dt(){return _tk.map(p=>atob(p)).join('');}
 let appData={kioscos:[],pedidos:[],precios:{fullBox:0,halfBox:0,bulkBox:0}};
 let currentSha={kioscos:null,pedidos:null,precios:null};
+let currentWeekIndex=0;
+let allWeeks=[];
 async function leerArchivoGitHub(archivo){
 const url='https://api.github.com/repos/'+REPO_OWNER+'/'+REPO_NAME+'/contents/alfajores/'+archivo;
 try{
@@ -217,10 +247,13 @@ try{
 const kioscos=await leerArchivoGitHub('kioscos.json');
 if(kioscos.datos){appData.kioscos=kioscos.datos;currentSha.kioscos=kioscos.sha;}else{appData.kioscos=[];}
 const pedidos=await leerArchivoGitHub('pedidos.json');
-if(pedidos.datos){appData.pedidos=pedidos.datos;currentSha.pedidos=pedidos.sha;}else{appData.pedidos=[];}
+if(pedidos.datos){
+appData.pedidos=pedidos.datos.map(p=>({...p,pendingDelivery:p.pendingDelivery!==undefined?p.pendingDelivery:false}));
+currentSha.pedidos=pedidos.sha;
+}else{appData.pedidos=[];}
 const precios=await leerArchivoGitHub('precios.json');
 if(precios.datos){appData.precios=precios.datos;currentSha.precios=precios.sha;}else{appData.precios={fullBox:0,halfBox:0,bulkBox:0};}
-displayKiosks();updateKioskSelect();displayOrders();displayStats();updateCurrentPricesDisplay();updateOrderPrice();
+displayKiosks();updateKioskSelect();calculateWeeks();displayOrdersByWeek();displayStats();updateCurrentPricesDisplay();updateOrderPrice();
 if(!silent){showSyncStatus('✅ Cargado');setTimeout(function(){hideSyncStatus();},2000);}
 }catch(error){if(!silent){showSyncStatus('❌ Error');setTimeout(function(){hideSyncStatus();},3000);}}
 }
@@ -250,6 +283,136 @@ return total;
 }
 function formatPrice(price){return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(price);}
 function formatDate(date){const d=new Date(date);return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function getWeekStart(date){
+const d=new Date(date);
+const day=d.getDay();
+const diff=d.getDate()-day+(day===0?-6:1);
+const monday=new Date(d.setDate(diff));
+monday.setHours(0,0,0,0);
+return monday;
+}
+function getWeekEnd(weekStart){
+const end=new Date(weekStart);
+end.setDate(end.getDate()+4);
+return end;
+}
+function formatWeekRange(weekStart){
+const end=getWeekEnd(weekStart);
+const startStr=weekStart.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});
+const endStr=end.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+return startStr+' al '+endStr;
+}
+function calculateWeeks(){
+if(appData.pedidos.length===0){allWeeks=[];return;}
+const weeks=new Set();
+appData.pedidos.forEach(p=>{
+const weekStart=getWeekStart(new Date(p.createdAt));
+weeks.add(weekStart.getTime());
+});
+allWeeks=Array.from(weeks).sort((a,b)=>b-a).map(t=>new Date(t));
+currentWeekIndex=0;
+}
+function changeWeek(delta){
+currentWeekIndex+=delta;
+if(currentWeekIndex<0)currentWeekIndex=0;
+if(currentWeekIndex>=allWeeks.length)currentWeekIndex=allWeeks.length-1;
+displayOrdersByWeek();
+displayStats();
+}
+function displayOrdersByWeek(){
+const list=document.getElementById('orderList');
+const loading=document.getElementById('loadingHistory');
+const weekDisplay=document.getElementById('currentWeekDisplay');
+if(appData.pedidos.length===0){
+loading.style.display='none';
+list.innerHTML='<div class="empty-state">No hay pedidos</div>';
+weekDisplay.textContent='Sin pedidos';
+return;
+}
+loading.style.display='none';
+if(allWeeks.length===0){
+list.innerHTML='<div class="empty-state">No hay pedidos</div>';
+weekDisplay.textContent='Sin pedidos';
+return;
+}
+const currentWeek=allWeeks[currentWeekIndex];
+const weekEnd=getWeekEnd(currentWeek);
+weekDisplay.textContent='Semana del '+formatWeekRange(currentWeek);
+const weekOrders=appData.pedidos.filter(p=>{
+const orderDate=getWeekStart(new Date(p.createdAt));
+return orderDate.getTime()===currentWeek.getTime();
+});
+if(weekOrders.length===0){
+list.innerHTML='<div class="empty-state">No hay pedidos en esta semana</div>';
+return;
+}
+const groupedByKiosk={};
+weekOrders.forEach(order=>{
+if(!groupedByKiosk[order.kioskId]){
+groupedByKiosk[order.kioskId]={
+kioskName:order.kioskName,
+orders:[]
+};
+}
+groupedByKiosk[order.kioskId].orders.push(order);
+});
+let html='';
+Object.keys(groupedByKiosk).forEach(kioskId=>{
+const group=groupedByKiosk[kioskId];
+const totalFullBox=group.orders.reduce((sum,o)=>sum+o.fullBox,0);
+const totalHalfBox=group.orders.reduce((sum,o)=>sum+o.halfBox,0);
+const totalPrice=group.orders.reduce((sum,o)=>sum+(o.price||0),0);
+const totalUnits=group.orders.reduce((sum,o)=>sum+o.totalUnits,0);
+html+='<div class="kiosk-group">';
+html+='<div class="kiosk-group-header">🏪 '+group.kioskName+'</div>';
+group.orders.forEach(order=>{
+const deliveryClass=order.pendingDelivery?'pending-delivery':'';
+const paymentClass=order.pendingPayment?'pending-payment':'';
+const deliveryBadge=order.pendingDelivery?'<span class="status-badge pending-del">📦 Pendiente entrega</span>':'<span class="status-badge delivered">✅ Entregado</span>';
+const paymentBadge=order.pendingPayment?'<span class="status-badge pending-pay">💰 Pago pendiente</span>':'<span class="status-badge paid">✅ Pagado</span>';
+const bulkText=order.isBulkPrice?'<p style="color:#CD853F;font-size:12px;">✨ Precio mayorista</p>':'';
+const deliveryBtn=order.pendingDelivery?'<button class="btn-delivery" onclick="toggleDelivery('+order.id+')">✅ Marcar Entregado</button>':'<button class="btn-delivery" onclick="toggleDelivery('+order.id+')">↩️ Marcar Pendiente</button>';
+const paymentBtn=order.pendingPayment?'<button class="btn-payment" onclick="togglePayment('+order.id+')">✅ Marcar Pagado</button>':'<button class="btn-payment" onclick="togglePayment('+order.id+')">↩️ Marcar Pendiente</button>';
+html+='<div class="order-item '+deliveryClass+' '+paymentClass+'">';
+html+='<p style="margin:5px 0;">📅 '+formatDate(order.createdAt)+'</p>';
+html+='<p style="margin:5px 0;">🍪 Docenas: '+order.fullBox+' | Medias: '+order.halfBox+'</p>';
+html+='<p style="margin:5px 0;">📦 Total: '+order.totalUnits+' unidades</p>';
+html+='<p style="margin:5px 0;font-weight:600;color:#6F4E37;">💰 '+formatPrice(order.price||0)+'</p>';
+html+=bulkText;
+html+='<div class="status-badges">'+deliveryBadge+paymentBadge+'</div>';
+html+='<div class="action-buttons">'+deliveryBtn+paymentBtn+'<button class="delete-order-btn" onclick="deleteOrder('+order.id+')">🗑️ Eliminar</button></div>';
+html+='</div>';
+});
+html+='<div class="kiosk-totals">';
+html+='<strong>Total del kiosco:</strong><br>';
+html+='🍪 Docenas: '+totalFullBox+' | Medias: '+totalHalfBox+'<br>';
+html+='📦 Unidades: '+totalUnits+'<br>';
+html+='💰 Total: '+formatPrice(totalPrice);
+html+='</div>';
+html+='</div>';
+});
+list.innerHTML=html;
+}
+function displayStats(){
+if(allWeeks.length===0||!allWeeks[currentWeekIndex]){
+document.getElementById('stats').innerHTML='';
+return;
+}
+const currentWeek=allWeeks[currentWeekIndex];
+const weekEnd=getWeekEnd(currentWeek);
+const weekOrders=appData.pedidos.filter(p=>{
+const orderDate=getWeekStart(new Date(p.createdAt));
+return orderDate.getTime()===currentWeek.getTime();
+});
+const totalOrders=weekOrders.length;
+const totalFullBoxes=weekOrders.reduce(function(sum,o){return sum+o.fullBox;},0);
+const totalHalfBoxes=weekOrders.reduce(function(sum,o){return sum+o.halfBox;},0);
+const totalUnits=weekOrders.reduce(function(sum,o){return sum+o.totalUnits;},0);
+const totalMoney=weekOrders.reduce(function(sum,o){return sum+(o.price||0);},0);
+const pendingDeliveries=weekOrders.filter(function(o){return o.pendingDelivery;}).length;
+const pendingPayments=weekOrders.filter(function(o){return o.pendingPayment;}).length;
+document.getElementById('stats').innerHTML='<div class="stat-card"><h4>Total Pedidos</h4><p>'+totalOrders+'</p></div><div class="stat-card"><h4>Docenas</h4><p>'+totalFullBoxes+'</p></div><div class="stat-card"><h4>Medias</h4><p>'+totalHalfBoxes+'</p></div><div class="stat-card"><h4>Unidades</h4><p>'+totalUnits+'</p></div><div class="stat-card"><h4>Total Dinero</h4><p>'+formatPrice(totalMoney)+'</p></div><div class="stat-card" style="background:linear-gradient(135deg,#FF6B6B 0%,#C92A2A 100%)"><h4>Entregas Pendientes</h4><p>'+pendingDeliveries+'</p></div><div class="stat-card" style="background:linear-gradient(135deg,#FFA500 0%,#FF6B00 100%)"><h4>Pagos Pendientes</h4><p>'+pendingPayments+'</p></div>';
+}
 function openSettings(){document.getElementById('settingsModal').classList.add('show');loadPrices();}
 function closeSettings(){document.getElementById('settingsModal').classList.remove('show');}
 window.onclick=function(event){
@@ -262,7 +425,7 @@ document.querySelectorAll('.tab-button').forEach(function(btn){btn.classList.rem
 document.getElementById(tabName).classList.add('active');
 event.target.classList.add('active');
 if(tabName==='orders')updateKioskSelect();
-if(tabName==='history'){displayOrders();displayStats();}
+if(tabName==='history'){calculateWeeks();displayOrdersByWeek();displayStats();}
 }
 async function addKiosk(){
 const name=document.getElementById('kioskName').value.trim();
@@ -322,6 +485,7 @@ async function createOrder(){
 const kioskId=parseInt(document.getElementById('orderKiosk').value);
 const fullBox=parseInt(document.getElementById('fullBox').value)||0;
 const halfBox=parseInt(document.getElementById('halfBox').value)||0;
+const pendingDelivery=document.getElementById('pendingDelivery').checked;
 const pendingPayment=document.getElementById('pendingPayment').checked;
 if(!kioskId){alert('Seleccione un kiosco');return;}
 if(fullBox===0&&halfBox===0){alert('Agregue al menos una caja');return;}
@@ -329,13 +493,14 @@ const kiosk=appData.kioscos.find(function(k){return k.id===kioskId;});
 const now=new Date();
 const orderPrice=calculatePrice(fullBox,halfBox);
 const isBulkPrice=fullBox>=5&&appData.precios.bulkBox>0;
-const order={id:Date.now(),kioskId:kioskId,kioskName:kiosk.name,fullBox:fullBox,halfBox:halfBox,totalUnits:(fullBox*12)+(halfBox*6),price:orderPrice,isBulkPrice:isBulkPrice,pendingPayment:pendingPayment,createdAt:now.toISOString(),date:formatDate(now)};
+const order={id:Date.now(),kioskId:kioskId,kioskName:kiosk.name,fullBox:fullBox,halfBox:halfBox,totalUnits:(fullBox*12)+(halfBox*6),price:orderPrice,isBulkPrice:isBulkPrice,pendingDelivery:pendingDelivery,pendingPayment:pendingPayment,createdAt:now.toISOString(),date:formatDate(now)};
 appData.pedidos.push(order);
 const exito=await guardarEnGitHub();
 if(exito){
 document.getElementById('orderKiosk').value='';
 document.getElementById('fullBox').value='0';
 document.getElementById('halfBox').value='0';
+document.getElementById('pendingDelivery').checked=false;
 document.getElementById('pendingPayment').checked=false;
 updateOrderPrice();
 alert('Pedido creado');
@@ -345,42 +510,24 @@ async function deleteOrder(orderId){
 if(confirm('¿Eliminar pedido?')){
 appData.pedidos=appData.pedidos.filter(function(o){return o.id!==orderId;});
 const exito=await guardarEnGitHub();
-if(exito){displayOrders();displayStats();alert('Pedido eliminado');}
+if(exito){calculateWeeks();displayOrdersByWeek();displayStats();alert('Pedido eliminado');}
 }
 }
-async function markAsPaid(orderId){
+async function toggleDelivery(orderId){
 const order=appData.pedidos.find(function(o){return o.id===orderId;});
 if(order){
-order.pendingPayment=false;
+order.pendingDelivery=!order.pendingDelivery;
 const exito=await guardarEnGitHub();
-if(exito){displayOrders();displayStats();alert('Marcado como pagado');}
+if(exito){displayOrdersByWeek();displayStats();}
 }
 }
-function displayOrders(){
-const list=document.getElementById('orderList');
-const loading=document.getElementById('loadingHistory');
-if(appData.pedidos.length===0){loading.style.display='none';list.innerHTML='<div class="empty-state">No hay pedidos</div>';return;}
-loading.style.display='none';
-const pedidosOrdenados=appData.pedidos.slice().reverse();
-list.innerHTML=pedidosOrdenados.map(function(order){
-const isPending=order.pendingPayment;
-const bgColor=isPending?'#FFE4B5':'#FFF8DC';
-const borderColor=isPending?'#A0522D':'#8B6F47';
-const statusColor=isPending?'#A0522D':'#8B6F47';
-const statusText=isPending?'⚠️ PAGO PENDIENTE':'✓ Pagado';
-const bulkText=order.isBulkPrice?'<p style="color:#CD853F;font-size:12px;">✨ Precio mayorista</p>':'';
-const payButton=isPending?'<button onclick="markAsPaid('+order.id+')" style="background:#CD853F;padding:6px 12px;font-size:13px;border:none;border-radius:8px;color:white;cursor:pointer;">Marcar Pagado</button>':'';
-return '<div style="background:'+bgColor+';padding:15px;margin:10px 0;border-radius:8px;border-left:5px solid '+borderColor+';"><div style="display:flex;justify-content:space-between;align-items:start;"><div><h3 style="color:#6F4E37;margin:0 0 10px 0;">'+order.kioskName+'</h3><p style="margin:5px 0;">📅 '+order.date+'</p><p style="margin:5px 0;">🍪 Docenas: '+order.fullBox+' | Medias: '+order.halfBox+'</p><p style="margin:5px 0;">📦 Total: '+order.totalUnits+' unidades</p><p style="margin:5px 0;font-weight:600;color:#6F4E37;">💰 '+formatPrice(order.price||0)+'</p>'+bulkText+'<p style="margin:10px 0;font-weight:600;color:'+statusColor+';">'+statusText+'</p></div><div style="display:flex;flex-direction:column;gap:8px;">'+payButton+'<button onclick="deleteOrder('+order.id+')" class="delete-order-btn" style="border:none;border-radius:8px;color:white;cursor:pointer;">🗑️ Eliminar</button></div></div></div>';
-}).join('');
+async function togglePayment(orderId){
+const order=appData.pedidos.find(function(o){return o.id===orderId;});
+if(order){
+order.pendingPayment=!order.pendingPayment;
+const exito=await guardarEnGitHub();
+if(exito){displayOrdersByWeek();displayStats();}
 }
-function displayStats(){
-const totalOrders=appData.pedidos.length;
-const totalFullBoxes=appData.pedidos.reduce(function(sum,o){return sum+o.fullBox;},0);
-const totalHalfBoxes=appData.pedidos.reduce(function(sum,o){return sum+o.halfBox;},0);
-const totalUnits=appData.pedidos.reduce(function(sum,o){return sum+o.totalUnits;},0);
-const pendingPayments=appData.pedidos.filter(function(o){return o.pendingPayment;}).length;
-const pendingStyle=pendingPayments>0?'linear-gradient(135deg,#A0522D 0%,#8B4513 100%)':'linear-gradient(135deg,#8B6F47 0%,#6F4E37 100%)';
-document.getElementById('stats').innerHTML='<div class="stat-card"><h4>Total Pedidos</h4><p>'+totalOrders+'</p></div><div class="stat-card"><h4>Docenas</h4><p>'+totalFullBoxes+'</p></div><div class="stat-card"><h4>Medias</h4><p>'+totalHalfBoxes+'</p></div><div class="stat-card"><h4>Unidades</h4><p>'+totalUnits+'</p></div><div class="stat-card" style="background:'+pendingStyle+'"><h4>Pendientes</h4><p>'+pendingPayments+'</p></div>';
 }
 function exportData(){
 const data={kioscos:appData.kioscos,pedidos:appData.pedidos,precios:appData.precios,exportDate:new Date().toISOString()};
