@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -551,18 +550,6 @@
             margin: 3px 0;
         }
 
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .alert-info {
-            background: #E3F2FD;
-            color: #1976D2;
-            border-left: 4px solid #2196F3;
-        }
-
         .sync-status {
             position: fixed;
             bottom: 20px;
@@ -724,7 +711,6 @@
     <div class="sync-status" id="syncStatus">⏳ Sincronizando...</div>
 
     <script>
-        // Configuración GitHub (hardcodeada y ofuscada)
         const _tk = ['Z2hwX1lPQnk=', 'am1rRU1CZGQ=', 'OWE4bnNqUng=', 'V2pwWURKejY=', 'cWcxN0NIcU4='];
         const REPO_OWNER = 'PuebloMaya';
         const REPO_NAME = 'PuebloMaya';
@@ -748,10 +734,6 @@
             pedidos: null,
             precios: null
         };
-
-        // ============================================
-        // FUNCIONES DE GITHUB API
-        // ============================================
 
         async function leerArchivoGitHub(archivo) {
             const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/alfajores/${archivo}`;
@@ -948,9 +930,7 @@
                     showSyncStatus('❌ Error: ' + error.message);
                     setTimeout(() => hideSyncStatus(), 5000);
                 }
-                alert('Error al guardar en GitHub: ' + error.message + '
-
-Revisa la consola del navegador (F12) para más detalles.');
+                alert('Error al guardar en GitHub: ' + error.message + '\n\nRevisa la consola del navegador (F12) para más detalles.');
                 return false;
             }
         }
@@ -964,10 +944,6 @@ Revisa la consola del navegador (F12) para más detalles.');
         function hideSyncStatus() {
             document.getElementById('syncStatus').classList.remove('show');
         }
-
-        // ============================================
-        // FUNCIONES DE CÁLCULO Y FORMATO
-        // ============================================
 
         function calculatePrice(fullBox, halfBox) {
             let total = 0;
@@ -1017,10 +993,6 @@ Revisa la consola del navegador (F12) para más detalles.');
             return `${formatDate(monday)} - ${formatDate(friday)}`;
         }
 
-        // ============================================
-        // FUNCIONES DE UI
-        // ============================================
-
         function openSettings() {
             document.getElementById('settingsModal').classList.add('show');
             loadPrices();
@@ -1055,10 +1027,6 @@ Revisa la consola del navegador (F12) para más detalles.');
                 displayStats();
             }
         }
-
-        // ============================================
-        // KIOSCOS
-        // ============================================
 
         async function addKiosk() {
             const name = document.getElementById('kioskName').value.trim();
@@ -1131,10 +1099,6 @@ Revisa la consola del navegador (F12) para más detalles.');
             select.innerHTML = '<option value="">Seleccione un kiosco</option>' +
                 appData.kioscos.map(k => `<option value="${k.id}">${k.name}</option>`).join('');
         }
-
-        // ============================================
-        // PEDIDOS
-        // ============================================
 
         function changeQuantity(type, delta) {
             const input = document.getElementById(type);
@@ -1244,10 +1208,6 @@ Revisa la consola del navegador (F12) para más detalles.');
             }
         }
 
-        // ============================================
-        // HISTORIAL
-        // ============================================
-
         function displayOrdersByWeek() {
             const list = document.getElementById('orderList');
             const loading = document.getElementById('loadingHistory');
@@ -1322,61 +1282,61 @@ Revisa la consola del navegador (F12) para más detalles.');
                                 };
 
                                 const kioskId = kioskGroup.orders[0].kioskId;
-                                const uniqueId = `kiosk-${kioskId}-${week.monday.getTime()}`;
+                                const uniqueId = \`kiosk-\${kioskId}-\${week.monday.getTime()}\`;
 
-                                return `
-                                    <div class="kiosk-order-item ${kioskTotal.hasPending ? 'pending' : ''}" onclick="toggleOrderDetails('${uniqueId}')">
+                                return \`
+                                    <div class="kiosk-order-item \${kioskTotal.hasPending ? 'pending' : ''}" onclick="toggleOrderDetails('\${uniqueId}')">
                                         <div class="kiosk-order-header">
-                                            <h4>${kioskGroup.kioskName} <span class="expand-icon">▼</span></h4>
-                                            ${kioskTotal.hasPending ? 
-                                                `<span class="pending-badge">⚠️ ${kioskTotal.pendingCount} PEDIDO(S) PENDIENTE(S)</span>` : 
+                                            <h4>\${kioskGroup.kioskName} <span class="expand-icon">▼</span></h4>
+                                            \${kioskTotal.hasPending ? 
+                                                \`<span class="pending-badge">⚠️ \${kioskTotal.pendingCount} PEDIDO(S) PENDIENTE(S)</span>\` : 
                                                 '<span class="paid-badge">✓ PAGADO</span>'}
                                         </div>
                                         <div class="order-details-grid">
-                                            <p><strong>Pedidos:</strong> ${kioskGroup.orders.length}</p>
-                                            <p><strong>Docenas:</strong> ${kioskTotal.fullBox}</p>
-                                            <p><strong>Medias:</strong> ${kioskTotal.halfBox}</p>
-                                            <p><strong>Total:</strong> ${kioskTotal.totalUnits} unidades</p>
-                                            <p class="price-tag"><strong>💰 Total:</strong> ${formatPrice(kioskTotal.totalPrice)}</p>
+                                            <p><strong>Pedidos:</strong> \${kioskGroup.orders.length}</p>
+                                            <p><strong>Docenas:</strong> \${kioskTotal.fullBox}</p>
+                                            <p><strong>Medias:</strong> \${kioskTotal.halfBox}</p>
+                                            <p><strong>Total:</strong> \${kioskTotal.totalUnits} unidades</p>
+                                            <p class="price-tag"><strong>💰 Total:</strong> \${formatPrice(kioskTotal.totalPrice)}</p>
                                         </div>
-                                        <div class="order-detail-list" id="${uniqueId}">
+                                        <div class="order-detail-list" id="\${uniqueId}">
                                             <h5 style="margin-bottom: 10px; color: #6F4E37;">📋 Detalle de pedidos:</h5>
-                                            ${kioskGroup.orders.map((order, index) => `
-                                                <div class="individual-order ${order.pendingPayment ? 'pending' : ''}">
-                                                    <p><strong>Pedido #${index + 1}</strong> - ${order.date}</p>
-                                                    <p>🍪 Docenas: ${order.fullBox} | Medias: ${order.halfBox} | Total: ${order.totalUnits} unidades</p>
-                                                    ${order.isBulkPrice ? '<p style="color: #CD853F; font-size: 12px;">✨ Precio mayorista aplicado</p>' : ''}
-                                                    <p class="price-tag">💰 ${formatPrice(order.price || 0)}</p>
-                                                    <p style="color: ${order.pendingPayment ? '#A0522D' : '#8B6F47'}; font-weight: 600;">
-                                                        ${order.pendingPayment ? '⚠️ DEBE PAGAR ESTE PEDIDO' : '✓ Pagado'}
+                                            \${kioskGroup.orders.map((order, index) => \`
+                                                <div class="individual-order \${order.pendingPayment ? 'pending' : ''}">
+                                                    <p><strong>Pedido #\${index + 1}</strong> - \${order.date}</p>
+                                                    <p>🍪 Docenas: \${order.fullBox} | Medias: \${order.halfBox} | Total: \${order.totalUnits} unidades</p>
+                                                    \${order.isBulkPrice ? '<p style="color: #CD853F; font-size: 12px;">✨ Precio mayorista aplicado</p>' : ''}
+                                                    <p class="price-tag">💰 \${formatPrice(order.price || 0)}</p>
+                                                    <p style="color: \${order.pendingPayment ? '#A0522D' : '#8B6F47'}; font-weight: 600;">
+                                                        \${order.pendingPayment ? '⚠️ DEBE PAGAR ESTE PEDIDO' : '✓ Pagado'}
                                                     </p>
                                                     <div class="order-actions">
-                                                        ${order.pendingPayment ? 
-                                                            `<button class="pay-button" onclick="event.stopPropagation(); markAsPaid(${order.id})">Marcar como Pagado</button>` : 
+                                                        \${order.pendingPayment ? 
+                                                            \`<button class="pay-button" onclick="event.stopPropagation(); markAsPaid(\${order.id})">Marcar como Pagado</button>\` : 
                                                             '<span style="color: #8B6F47; font-size: 12px;">✓ Pagado</span>'}
-                                                        <button class="delete-order-btn" onclick="event.stopPropagation(); deleteOrder(${order.id})">🗑️ Eliminar</button>
+                                                        <button class="delete-order-btn" onclick="event.stopPropagation(); deleteOrder(\${order.id})">🗑️ Eliminar</button>
                                                     </div>
                                                 </div>
-                                            `).join('')}
-                                            ${kioskTotal.hasPending ? `
+                                            \`).join('')}
+                                            \${kioskTotal.hasPending ? \`
                                                 <div style="background: #FFF8DC; padding: 12px; border-radius: 6px; margin-top: 10px; border: 2px solid #DEB887;">
                                                     <p style="color: #8B4513; font-weight: 600; margin: 0;">
-                                                        💰 Total adeudado: ${formatPrice(kioskGroup.orders.filter(o => o.pendingPayment)
+                                                        💰 Total adeudado: \${formatPrice(kioskGroup.orders.filter(o => o.pendingPayment)
                                                             .reduce((sum, o) => sum + (o.price || 0), 0))}
                                                     </p>
                                                     <p style="color: #8B4513; margin: 5px 0 0 0; font-size: 13px;">
-                                                        ${kioskGroup.orders.filter(o => o.pendingPayment)
+                                                        \${kioskGroup.orders.filter(o => o.pendingPayment)
                                                             .reduce((sum, o) => sum + o.totalUnits, 0)} unidades
-                                                        (${kioskGroup.orders.filter(o => o.pendingPayment)
+                                                        (\${kioskGroup.orders.filter(o => o.pendingPayment)
                                                             .reduce((sum, o) => sum + o.fullBox, 0)} docenas + 
-                                                        ${kioskGroup.orders.filter(o => o.pendingPayment)
+                                                        \${kioskGroup.orders.filter(o => o.pendingPayment)
                                                             .reduce((sum, o) => sum + o.halfBox, 0)} medias)
                                                     </p>
                                                 </div>
-                                            ` : ''}
+                                            \` : ''}
                                         </div>
                                     </div>
-                                `;
+                                \`;
                             }).join('')}
                         </div>
                     </div>
@@ -1444,10 +1404,6 @@ Revisa la consola del navegador (F12) para más detalles.');
             a.click();
         }
 
-        // ============================================
-        // PRECIOS
-        // ============================================
-
         async function savePrices() {
             const fullBox = parseFloat(document.getElementById('priceFullBox').value) || 0;
             const halfBox = parseFloat(document.getElementById('priceHalfBox').value) || 0;
@@ -1484,14 +1440,9 @@ Revisa la consola del navegador (F12) para más detalles.');
             `;
         }
 
-        // ============================================
-        // INICIALIZACIÓN
-        // ============================================
-
         window.addEventListener('load', async function() {
             await syncData(false);
             
-            // Sincronización automática cada 60 segundos
             setInterval(() => {
                 syncData(true);
             }, 60000);
