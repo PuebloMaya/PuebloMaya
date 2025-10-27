@@ -11,7 +11,7 @@
     "id": 1761527452780,
     "name": "Farmacia Maya",
     "owner": "Pamela Gemelli",
-    "address": "Pueyrredon y GalcerÃÂÃÂ¡n",
+    "address": "Pueyrredon y GalcerÃÂÃÂÃÂÃÂ¡n",
     "phone": "2395418326",
     "createdAt": "2025-10-27T01:10:52.780Z"
   },
@@ -19,7 +19,7 @@
     "id": 1761527576128,
     "name": "Fantasia",
     "owner": "Soledad Gallardo (empleada)",
-    "address": "MonseÃÂ±or de Andrea 49",
+    "address": "MonseÃÂÃÂ±or de Andrea 49",
     "phone": "2395 40-1598",
     "createdAt": "2025-10-27T01:12:56.128Z"
   },
@@ -27,7 +27,7 @@
     "id": 1761527712662,
     "name": "Atraco",
     "owner": "Sofia Ediviges- Fede Lamas",
-    "address": "Coronel SuÃ¡rez 396",
+    "address": "Coronel SuÃÂ¡rez 396",
     "phone": "2395419487",
     "createdAt": "2025-10-27T01:15:12.662Z"
   },
@@ -35,8 +35,16 @@
     "id": 1761527861720,
     "name": "Tiki Taka",
     "owner": "Johana Collado- Ezequiel Chaves",
-    "address": "Av. San Martín 206",
+    "address": "Av. San MartÃ­n 206",
     "phone": "2395420978",
     "createdAt": "2025-10-27T01:17:41.720Z"
+  },
+  {
+    "id": 1761528054007,
+    "name": "Almacen de Campo",
+    "owner": "Elias",
+    "address": "Av. 9 de Julio 7",
+    "phone": "2396441073",
+    "createdAt": "2025-10-27T01:20:54.007Z"
   }
 ]
