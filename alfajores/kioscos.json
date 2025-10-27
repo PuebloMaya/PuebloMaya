@@ -6,5 +6,13 @@
     "address": "Av. San Martin 421",
     "phone": "2395 40-2366",
     "createdAt": "2025-10-27T01:09:42.571Z"
+  },
+  {
+    "id": 1761527452780,
+    "name": "Farmacia Maya",
+    "owner": "Pamela Gemelli",
+    "address": "Pueyrredon y Galcerán",
+    "phone": "2395418326",
+    "createdAt": "2025-10-27T01:10:52.780Z"
   }
 ]
