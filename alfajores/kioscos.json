@@ -11,8 +11,16 @@
     "id": 1761527452780,
     "name": "Farmacia Maya",
     "owner": "Pamela Gemelli",
-    "address": "Pueyrredon y Galcerán",
+    "address": "Pueyrredon y GalcerÃ¡n",
     "phone": "2395418326",
     "createdAt": "2025-10-27T01:10:52.780Z"
+  },
+  {
+    "id": 1761527576128,
+    "name": "Fantasia",
+    "owner": "Soledad Gallardo (empleada)",
+    "address": "Monseñor de Andrea 49",
+    "phone": "2395 40-1598",
+    "createdAt": "2025-10-27T01:12:56.128Z"
   }
 ]
