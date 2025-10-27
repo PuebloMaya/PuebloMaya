@@ -272,7 +272,8 @@ async function leerArchivoGitHub(archivo) {
     }
 }
 
-async function escribirArchivoGitHub(archivo, datos, sha) {
+async function escribirArchivoGitHub(archivo, datos, sha, intentos = 0) {
+    const maxIntentos = 3;
     const url = 'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/alfajores/' + archivo;
     const contenidoJSON = JSON.stringify(datos, null, 2);
     const contenidoBase64 = btoa(unescape(encodeURIComponent(contenidoJSON)));
@@ -297,6 +298,21 @@ async function escribirArchivoGitHub(archivo, datos, sha) {
         if (response.ok) {
             const result = await response.json();
             return result.content.sha;
+        }
+        
+        // Si hay conflicto (409), reintentar con SHA actualizado
+        if (response.status === 409 && intentos < maxIntentos) {
+            console.log('Conflicto detectado en ' + archivo + ', reintentando... (intento ' + (intentos + 1) + ')');
+            
+            // Leer el archivo actualizado para obtener el nuevo SHA
+            const archivoActualizado = await leerArchivoGitHub(archivo);
+            
+            if (archivoActualizado.sha) {
+                // Esperar un poco antes de reintentar
+                await new Promise(resolve => setTimeout(resolve, 500));
+                // Reintentar con el nuevo SHA
+                return await escribirArchivoGitHub(archivo, datos, archivoActualizado.sha, intentos + 1);
+            }
         }
         
         console.error('Error escribiendo', archivo, response.status);
