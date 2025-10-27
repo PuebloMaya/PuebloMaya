@@ -1,19 +1,5 @@
 [
   {
-    "id": 1761509288045,
-    "kioskId": 1761509260034,
-    "kioskName": "asda",
-    "fullBox": 3,
-    "halfBox": 0,
-    "totalUnits": 36,
-    "price": 0,
-    "isBulkPrice": false,
-    "pendingDelivery": false,
-    "pendingPayment": true,
-    "createdAt": "2025-10-26T20:08:08.045Z",
-    "date": "26/10/2025"
-  },
-  {
     "id": 1761521863670,
     "kioskId": 1761521761414,
     "kioskName": "Fantasia",
