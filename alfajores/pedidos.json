@@ -12,5 +12,19 @@
     "pendingPayment": false,
     "createdAt": "2025-10-28T21:42:44.036Z",
     "date": "28/10/2025"
+  },
+  {
+    "id": 1761688142847,
+    "kioskId": 1761527712662,
+    "kioskName": "Atraco",
+    "fullBox": 1,
+    "halfBox": 0,
+    "totalUnits": 12,
+    "price": 18000,
+    "isBulkPrice": false,
+    "pendingDelivery": false,
+    "pendingPayment": false,
+    "createdAt": "2025-10-28T21:49:02.847Z",
+    "date": "28/10/2025"
   }
 ]
